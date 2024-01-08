@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Student Grades</title>
+</head>
+<body>
+	<h2> Insert new student deatils </h2>
+	<form action="studentgrades.jsp" method="post">
+		<input type="hidden" name="operation" value="insert">
+		Name:<input type="text" name="name" required>
+		Usn:<input type="text" name="usn" required>
+		Grade:<input type="text" name="grade" required>
+		<input type="submit" value="insert">
+	</form> 
+	<br>
+	<h2> Delete student detail </h2>
+	<form action="studentgrades.jsp" method="post">
+		<input type="hidden" name="operation" value="delete">
+		Enter usn to delete:<input type="text" name="usn" required>
+		<input type="submit" value="delete">
+	</form>
+	<br>
+	 <h2>Find students with grade greater than 80</h2>
+    <form action="studentgrades.jsp" method="post">
+        <input type="hidden" name="operation" value="find">
+        <input type="submit" value="find">
+    </form>
+    <br>
+</body>
+</html>
+
+JSP file:- studentgrades.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Student grades</title>
+</head>
+<body>
+<%
+     String operation = request.getParameter("operation");
+     String usn = request.getParameter("usn");
+     String name = request.getParameter("name");
+     String grade = request.getParameter("grade");
+     String url = "jdbc:mysql://localhost:3306/student";
+     String user = "root";
+     String pass = "";
+     
+     try{
+    	 Class.forName("com.mysql.jdbc.Driver");
+    	 Connection connection = DriverManager.getConnection(url,user,pass);
+    	 
+    	 switch(operation){
+    	 case "insert":
+    		 String sqlinsert = "INSERT INTO grades VALUES(?,?,?)";
+    		 PreparedStatement p1 = connection.prepareStatement(sqlinsert);
+    		 p1.setString(1,name);
+    		 p1.setString(2,usn);
+    		 p1.setString(3,grade);
+    		 p1.executeUpdate();
+    		 out.println("<h2>Data inserted sucessfully</h2>");
+    		 p1.close();
+    		 break;
+    	 
+    	 case "delete":
+    		 String sqldelete = "DELETE FROM grades WHERE usn=?";
+    		 PreparedStatement p2 = connection.prepareStatement(sqldelete);
+    		 p2.setString(1,usn);
+    		 p2.executeUpdate();
+    		 out.println("<h2>Data deleted sucessuflly</h2>");
+    		 p2.close();
+    		 break;
+    	 case "find":
+    		 String sqlfind = "SELECT * FROM grades WHERE marks>80";
+    		 PreparedStatement p3 = connection.prepareStatement(sqlfind);
+    		 ResultSet rs = p3.executeQuery();
+    		 while(rs.next())
+    		 {
+    			 out.println("Name: " + rs.getString("name") + "<br>");
+                 out.println("Usn: " + rs.getString("usn") + "<br>");
+                 out.println("Grade: " + rs.getString("marks") + "<br><br>");
+    		 }
+    		 
+    	 }
+     }
+     catch(SQLException e){
+    	 out.println(e);
+     }
+%>
+
+</body>
+</html>
